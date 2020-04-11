@@ -22,6 +22,7 @@
 ```exit```
 
 #### Update config file
+  - create new file api.php in config directory using _example.php contents
   - open config/api.php using your text editor
   - change DB parameters using .env database details
 
