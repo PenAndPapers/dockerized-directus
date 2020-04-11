@@ -1,0 +1,65 @@
+version: '3'
+
+networks:
+  dockerized_directus:
+
+services:
+  #PHP Service
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${PHP_CONTAINER_NAME}
+    restart: on-failure
+    volumes:
+      - ./docker-contianer/php/php.ini:/etc/php/7.4/fpm/php.ini
+      - ./:${CONTAINER_APP_DIR}
+    networks:
+      - dockerized_directus
+
+  #MYSQL Service
+  mysql:
+    image: mysql:latest
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: on-failure
+    volumes:
+      - ./src/schema.sql:${DB_DUMP}
+    tty: true
+    ports:
+      - "${DB_PORT}:3306"
+    expose:
+      - "${DB_PORT}"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - dockerized_directus
+
+  #NGINX Service
+  nginx:
+    image: nginx:latest
+    container_name: ${NGINX_CONTAINER_NAME}
+    restart: on-failure
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    volumes:
+      - ./:${CONTAINER_APP_DIR}
+      - ./docker-container/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker-container/nginx/cert/nginx-selfsigned.crt:/etc/nginx/certs/nginx-selfsigned.crt
+      - ./docker-container/nginx/cert/nginx-selfsigned.key:/etc/nginx/certs/nginx-selfsigned.key
+      - ./docker-container/nginx/cert/dhparam.pem:/etc/ssl/certs/dhparam.pem
+      - ./docker-container/nginx/logs/access.log:/var/log/nginx/access.log
+      - ./docker-container/nginx/logs/error.log:/var/log/nginx/error.log
+    environment:
+      - NGINX_HOST=${NGINX_HOST}
+      - NGINX_PORT=${NGINX_HTTP_PORT}
+    links:
+      - php
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - dockerized_directus
