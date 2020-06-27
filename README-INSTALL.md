@@ -1,7 +1,7 @@
 ## Application Installation
 
 #### Change file permission by running the ff. commands
-```sudo chmod -R 777 docker-container/nginx/cert```
+```sudo chmod -R 777 docker_services_config/nginx/cert```
 ```sudo chmod -R 777 logs```
 ```sudo chmod -R 777 public/uploads```
 
