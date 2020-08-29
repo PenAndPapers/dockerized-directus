@@ -27,4 +27,4 @@
   - change DB parameters using .env database details
 
 #### Accessing directus from host machine
-```https://localhost:4499/admin/#/login````
+```https://localhost:4422/admin/#/login````
